@@ -46,6 +46,23 @@ def random_channel():
     url  = content[img_num].find(class_='text-black')['href'].replace("/wtf?contest=", "")
     return topic, img_url, describe, url
 
+def random_channel_meme(channel_id):
+    url = 'https://memes.tw/wtf'
+    header = {'User-Agent': 'Custom'}
+    page_num = random.randint(1, 5)
+    payload = {'page': page_num, 'contest': channel_id}
+    while page_num >= 1:
+        payload['page'] = page_num
+        web_data = bs(requests.get(url,headers = header, params = payload).text ,"lxml")
+        if web_data.find(class_='img-fluid') != None:
+            break
+        else:
+            page_num = (page_num/2)
+    content = web_data.find_all(class_='img-fluid')
+    img_num = random.randint(0, len(content)-1)
+    img = content[img_num]['data-src']
+    return img
+
 @handler.add(PostbackEvent)
 def handle_post_message(event):
     user_id = event.source.user_id
@@ -112,7 +129,11 @@ def handle_message(event):
     elif event.message.text == "頻道迷因":
         user_id = event.source.user_id
         if user_id in topic_dic:
-          reply_msg = TextSendMessage(topic_dic[user_id])
+            img_url = random_channel_meme(int(topic_dic[user_id]))
+            reply_msg = ImageSendMessage(
+                original_content_url = img_url,
+                preview_image_url = img_url
+                )
         else:
           reply_msg = TextSendMessage("你還沒選擇主題喔!")
         line_bot_api.reply_message(event.reply_token, reply_msg)
