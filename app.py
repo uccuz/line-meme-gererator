@@ -8,7 +8,8 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage,ImageSendMessage
+    MessageEvent, TextMessage, TextSendMessage,ImageSendMessage,
+    TemplateSendMessage, MessageTemplateAction, PostbackTemplateAction, ButtonsTemplate
 )
 
 from bs4 import BeautifulSoup as bs 
@@ -51,14 +52,34 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    img_url = random_meme()
-    line_bot_api.reply_message(
-        
-        event.reply_token,
-        ImageSendMessage(
+    if event.message.text == "抽迷因":
+        img_url = random_meme()
+        reply_msg = ImageSendMessage(
             original_content_url = img_url,
             preview_image_url = img_url
-        ))
+            )
+    elif event.message.text == "迷因頻道":
+        reply_msg = TemplateSendMessage(
+            alt_text='迷因主題',
+            template = ButtonsTemplate(
+              title='我自己做的',
+              text='共有 16,159 張圖片',
+              thumbnail_image_url="https://memes.tw/user-wtf/1624245841223.jpg",
+              actions=[
+                  PostbackTemplateAction(
+                      label='選擇主題',
+                      text='選擇主題',
+                      data='value data'
+                  ),
+                  MessageTemplateAction(
+                      label='換個主題',
+                      text='迷因頻道'
+                  )
+              ]
+          )
+      )
+    
+    line_bot_api.reply_message(event.reply_token, reply_msg)
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
