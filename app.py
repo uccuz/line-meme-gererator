@@ -86,6 +86,7 @@ def handle_message(event):
             original_content_url = img_url,
             preview_image_url = img_url
             )
+        line_bot_api.reply_message(event.reply_token, reply_msg)
     elif event.message.text == "迷因頻道":
         topic, img_url, describe, url = random_channel()
         reply_msg = TemplateSendMessage(
@@ -107,14 +108,16 @@ def handle_message(event):
               ]
           )
         )
+        line_bot_api.reply_message(event.reply_token, reply_msg)
     elif event.message.text == "頻道迷因":
         user_id = event.source.user_id
         if user_id in topic_dic:
           reply_msg = TextSendMessage(topic_dic[user_id])
         else:
           reply_msg = TextSendMessage("你還沒選擇主題喔!")
+        line_bot_api.reply_message(event.reply_token, reply_msg)
     
-    line_bot_api.reply_message(event.reply_token, reply_msg)
+    
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
