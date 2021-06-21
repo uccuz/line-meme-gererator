@@ -30,6 +30,21 @@ def random_meme():
     img = bs(requests.get(url,headers = header, params = payload).text ,"lxml").find_all(class_='img-fluid')[img_num]['data-src']
     return img
 
+def random_channel():
+    url = 'https://memes.tw/wtf/contests'
+    header = {'User-Agent': 'Custom'}
+    page_num = random.randint(1, 5)
+    img_num = random.randint(0, 19)
+    payload = {'page': page_num}
+    content = bs(requests.get(url,headers = header, params = payload).text ,"lxml").find_all(class_='mb-4')
+    topic  = content[img_num].find(class_='text-black').text
+    img_url = content[img_num].find(class_='img-fluid')['src']
+    describe = content[img_num].find(class_='text-muted text-center').text.replace(" ", "").replace("\n", "")
+    url  = content[img_num].find(class_='text-black')['href'].replace("/wtf?contest=", "")
+    return topic, img_url, describe, url
+
+
+
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -59,17 +74,18 @@ def handle_message(event):
             preview_image_url = img_url
             )
     elif event.message.text == "迷因頻道":
+        topic, img_url, describe, url = random_channel()
         reply_msg = TemplateSendMessage(
             alt_text='迷因主題',
             template = ButtonsTemplate(
-              title='我自己做的',
-              text='共有 16,159 張圖片',
-              thumbnail_image_url="https://memes.tw/user-wtf/1624245841223.jpg",
+              title = topic,
+              text = describe,
+              thumbnail_image_url = img_url,
               actions=[
                   PostbackTemplateAction(
                       label='選擇主題',
-                      text='選擇主題',
-                      data='value data'
+                      text='選擇主題' + topic,
+                      data = url
                   ),
                   MessageTemplateAction(
                       label='換個主題',
