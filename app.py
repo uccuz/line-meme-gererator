@@ -71,7 +71,7 @@ def handle_post_message(event):
     line_bot_api.reply_message(
           event.reply_token,
           TextMessage(
-              text = "選擇主題成功 " + data
+              text = "選擇主題成功"
           )
         )
 
@@ -97,14 +97,14 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    if event.message.text == "抽迷因":
+    if event.message.text == "熱門迷因":
         img_url = random_meme()
         reply_msg = ImageSendMessage(
             original_content_url = img_url,
             preview_image_url = img_url
             )
         line_bot_api.reply_message(event.reply_token, reply_msg)
-    elif event.message.text == "迷因頻道":
+    elif event.message.text == "主題選擇":
         topic, img_url, describe, url = random_channel()
         reply_msg = TemplateSendMessage(
             alt_text='迷因主題',
@@ -115,18 +115,18 @@ def handle_message(event):
               actions=[
                   PostbackTemplateAction(
                       label='選擇主題',
-                      text='選擇主題' + topic,
+                      text= '選擇主題 ' + topic,
                       data = url
                   ),
                   MessageTemplateAction(
                       label='換個主題',
-                      text='迷因頻道'
+                      text='主題選擇'
                   )
               ]
           )
         )
         line_bot_api.reply_message(event.reply_token, reply_msg)
-    elif event.message.text == "頻道迷因":
+    elif event.message.text == "主題迷因":
         user_id = event.source.user_id
         if user_id in topic_dic:
             img_url = random_channel_meme(int(topic_dic[user_id]))
