@@ -71,7 +71,7 @@ def handle_post_message(event):
     line_bot_api.reply_message(
           event.reply_token,
           TextMessage(
-              text = "選擇主題成功"
+              text = "選擇主題成功，請點選主題迷因按鈕來互動"
           )
         )
 
